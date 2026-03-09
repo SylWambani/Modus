@@ -21,6 +21,7 @@ import debug_toolbar
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('inventory/', include('inventory.urls')),
     path('procurement/', include('procurement.urls')),
     path('__debug__/', include(debug_toolbar.urls)),
 ]

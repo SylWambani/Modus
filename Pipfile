@@ -8,6 +8,8 @@ django = "*"
 django-debug-toolbar = "*"
 drf-nested-routers = "*"
 mysqlclient = "*"
+inflect = "*"
+rapidfuzz = "*"
 
 [dev-packages]
 

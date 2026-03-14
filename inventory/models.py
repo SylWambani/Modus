@@ -1,8 +1,12 @@
 import uuid
+import inflect
 from django.db import models
 from django.db.models import Sum, F, DecimalField
 from django.core.validators import MinValueValidator
 from django.core.exceptions import ValidationError
+from rapidfuzz import process, fuzz
+
+p = inflect.engine()
 
 class Category(models.Model):
     name = models.CharField(max_length=255, unique=True)
@@ -28,23 +32,51 @@ class Product(models.Model):
     # slug = models.SlugField()
     category = models.ForeignKey(Category, on_delete=models.PROTECT)
     is_active = models.BooleanField(default=True)
+    canonical = models.CharField(max_length=255, unique=True, editable=False, blank=True, null=True)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['name', 'category'],
+                fields=['name', 'category', 'canonical'],
                 name='unique_variant_per_product'
             )
         ]
 
     def clean(self):
-        if Product.objects.filter(
-            name=self.name,
+        super().clean()
+        if not self.name:
+            return
+        
+        val=self.name.strip().lower()
+        singular = p.singular_noun(val) or val
+        self.canonical = singular
+
+        # Get all existing product names(excluding the current instance if editing)
+        existing_products=Product.objects.filter(
             category=self.category,
-        ).exclude(pk=self.pk).exists():
-            raise ValidationError(
-                "You already created this product."
-            )
+            ).exclude(pk=self.pk)
+
+        names = [p.name.lower() for p in existing_products]
+
+        if not names:
+            return
+        
+        # Fuzzy matching
+        if existing_products:
+            # Find the closest match, extractOne returns(match_string, score, index)
+            match = process.extractOne(singular, names, scorer=fuzz.WRatio)
+
+            if match:
+                closest_name, score, _ = match
+
+                closest_singular = p.singular_noun(closest_name.lower()) or closest_name.lower()
+
+                # Set a threshold(90 is a good starting point for typos)
+                if score > 85 or singular==closest_singular:
+                    raise ValidationError(
+                        f"A similar product '{closest_name}' already exists in this category"
+                        f"(Confidence:{score:.0f}%).Please use the existing record or correct the typo."
+                    )
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -65,6 +97,7 @@ class ProductVariant(models.Model):
     short_code = models.CharField(max_length=8, unique=True, editable=False)
 
     # Optional attributes
+    type = models.TextField(blank=True)
     color = models.CharField(max_length=50, blank=True)
     size = models.CharField(max_length=50, blank=True)
     buying_price = models.DecimalField(max_digits=20, decimal_places=2, validators=[MinValueValidator(0)])

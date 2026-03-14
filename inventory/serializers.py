@@ -15,18 +15,17 @@ class UnitMeasurementSerializer(serializers.ModelSerializer):
         fields = ['id', 'name'] 
 
 class ProductSerializer(serializers.ModelSerializer):
-
+    
     class Meta:
         model = Product
         fields = ['id', 'name', 'category'] 
 
 
 class ProductVariantSerializer(serializers.ModelSerializer):
-    unit_of_measure= UnitMeasurementSerializer()
 
     class Meta:
         model = ProductVariant
-        fields = ['id','unit_of_measure', 'sku', 'color', 'size', 'buying_price', 'selling_price', 'reorder_level']
+        fields = ['id','product','unit_of_measure', 'sku','type', 'color', 'size', 'buying_price', 'selling_price', 'reorder_level']
 
 
 class ProductInfoListSerializer(serializers.ModelSerializer):

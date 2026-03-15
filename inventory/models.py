@@ -5,6 +5,8 @@ from django.db.models import Sum, F, DecimalField
 from django.core.validators import MinValueValidator
 from django.core.exceptions import ValidationError
 from rapidfuzz import process, fuzz
+from .utils.normalization import normalize_variant_text
+from .utils.product_matching import prevent_typo
 
 p = inflect.engine()
 
@@ -109,23 +111,71 @@ class ProductVariant(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['product', 'unit_of_measure', 'color', 'size'],
-                name='unique_variant_per_product'
+                name='unique_variant_per_product',
             )
         ]
 
     def clean(self):
-        if ProductVariant.objects.filter(
+        super().clean()
+
+        # if self.color:
+        #     self.color = self.color.strip().lower()
+
+        # if self.size:
+        #     self.size = self.size.strip().lower()
+        
+        # if self.type:
+        #     self.type = self.type.strip().lower()
+
+        # Normalize fields
+        self.color = normalize_variant_text(self.color)
+        self.size = normalize_variant_text(self.size)
+        self.type = normalize_variant_text(self.type)
+
+        # Get existing values for this product
+        existing = ProductVariant.objects.filter(
             product=self.product,
-            color=self.color,
-            size=self.size,
-            unit_of_measure=self.unit_of_measure
-        ).exclude(pk=self.pk).exists():
+        ).exclude(pk=self.pk)
+
+        existing_colors = [v.color for v in existing if v.color]
+        existing_sizes = [v.size for v in existing if v.size]
+        existing_types = [v.type for v in existing if v.type]
+
+        # 1️⃣ Block duplicates after normalization
+        if self.type and self.type in existing_types:
             raise ValidationError(
-                "You already created an SKU for this product variant."
+                f"The type '{self.type}' already exists for this product."
             )
+        if self.color and self.color in existing_colors:
+            raise ValidationError(
+                f"The color '{self.color}' already exists for this product."
+            )
+        if self.size and self.size in existing_sizes:
+            raise ValidationError(
+                f"The size '{self.size}' already exists for this product."
+            )
+        
+
+
+
+        # Check typos
+        prevent_typo(self.type, existing_types)
+        prevent_typo(self.color, existing_colors)
+        prevent_typo(self.size, existing_sizes)
+
+
+        # if ProductVariant.objects.filter(
+        #     type=self.type,
+        #     product=self.product,
+        #     color=self.color,
+        #     size=self.size,
+        #     unit_of_measure=self.unit_of_measure
+        # ).exclude(pk=self.pk).exists():
+        #     raise ValidationError(
+        #         "You already created an SKU for this product variant."
+        #     )
 
     def save(self, *args, **kwargs):
-        self.full_clean()
 
         if not self.pk:
             cat = self.product.category.name[:3].upper()
@@ -133,6 +183,7 @@ class ProductVariant(models.Model):
             self.short_code = uuid.uuid4().hex[:8].upper()
             self.sku = f"{cat}-{name}-{self.short_code}"
 
+        self.full_clean()
         super().save(*args, **kwargs)
 
     @property

@@ -118,15 +118,6 @@ class ProductVariant(models.Model):
     def clean(self):
         super().clean()
 
-        # if self.color:
-        #     self.color = self.color.strip().lower()
-
-        # if self.size:
-        #     self.size = self.size.strip().lower()
-        
-        # if self.type:
-        #     self.type = self.type.strip().lower()
-
         # Normalize fields
         self.color = normalize_variant_text(self.color)
         self.size = normalize_variant_text(self.size)
@@ -154,26 +145,11 @@ class ProductVariant(models.Model):
             raise ValidationError(
                 f"The size '{self.size}' already exists for this product."
             )
-        
-
-
 
         # Check typos
         prevent_typo(self.type, existing_types)
         prevent_typo(self.color, existing_colors)
         prevent_typo(self.size, existing_sizes)
-
-
-        # if ProductVariant.objects.filter(
-        #     type=self.type,
-        #     product=self.product,
-        #     color=self.color,
-        #     size=self.size,
-        #     unit_of_measure=self.unit_of_measure
-        # ).exclude(pk=self.pk).exists():
-        #     raise ValidationError(
-        #         "You already created an SKU for this product variant."
-        #     )
 
     def save(self, *args, **kwargs):
 
@@ -185,11 +161,6 @@ class ProductVariant(models.Model):
 
         self.full_clean()
         super().save(*args, **kwargs)
-
-    @property
-    def current_stock(self):
-        total = self.movements.aggregate(total=Sum('quantity'))['total']
-        return total or 0
 
     def __str__(self):
         return f"{self.product.name} - {self.sku}"
@@ -208,6 +179,11 @@ class StockMovement(models.Model):
     quantity = models.IntegerField()
     reference = models.CharField(max_length=255, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def current_stock(self):
+        total = self.movements.aggregate(total=Sum('quantity'))['total']
+        return total or 0
 
     def save(self, *args, **kwargs):
         if self.movement_type == 'OUT':

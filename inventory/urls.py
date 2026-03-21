@@ -7,6 +7,7 @@ router.register('unit-measurement', views.UnitMeasurementViewSet)
 router.register('products', views.ProductViewSet, basename='products')
 router.register('products-variants', views.ProductVariantViewSet)
 router.register('products-info-list', views.ProductInfoListViewSet)
+router.register('stock-movement', views.StockMovementViewSet)
 
 # product_router = routers.NestedDefaultRouter(router, 'products', lookup='product')
 # product_router.register('variants', views.ProductVariantViewSet, basename='product-variant')

@@ -1,6 +1,6 @@
 from django.db import transaction
 from rest_framework import serializers
-from .models import Category, Product, ProductVariant, UnitsMeasurement
+from .models import Category, Product, ProductVariant, StockMovement, UnitsMeasurement
 
 class CategorySerializer(serializers.ModelSerializer):
     products_count = serializers.IntegerField(read_only=True)
@@ -36,4 +36,7 @@ class ProductInfoListSerializer(serializers.ModelSerializer):
         model=Product
         fields =[ 'id', 'name', 'category', 'variants'] 
 
-
+class StockMovementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=StockMovement
+        fields = ['id', 'variant', 'movement_type', 'quantity', 'created_at' ]

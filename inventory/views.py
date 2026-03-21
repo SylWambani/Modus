@@ -5,8 +5,8 @@ from rest_framework import status
 from rest_framework.decorators import action
 from django.db.models import Sum, F, DecimalField
 from django.db.models.aggregates import Count
-from .serializers import CategorySerializer, ProductInfoListSerializer, ProductSerializer, ProductVariantSerializer, UnitMeasurementSerializer
-from .models import Category, Product, ProductVariant, UnitsMeasurement
+from .serializers import CategorySerializer, ProductInfoListSerializer, ProductSerializer, ProductVariantSerializer, StockMovementSerializer, UnitMeasurementSerializer
+from .models import Category, Product, ProductVariant, StockMovement, UnitsMeasurement
 
 
 
@@ -36,9 +36,10 @@ class ProductVariantViewSet(ModelViewSet):
     queryset = ProductVariant.objects.all()
     serializer_class = ProductVariantSerializer
 
-    # def perform_create(self, serializer):
-    #     serializer.save(product_id=self.kwargs['product_pk'])
-
 class ProductInfoListViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductInfoListSerializer
+
+class StockMovementViewSet(ModelViewSet):
+    queryset = StockMovement.objects.all()
+    serializer_class = StockMovementSerializer

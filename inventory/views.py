@@ -14,7 +14,6 @@ class CategoryViewSet(ModelViewSet):
     queryset = Category.objects.annotate(
         products_count=Count('product')).all()
     serializer_class = CategorySerializer
-    category, created= Category.objects.get_or_create(name="New Category")
 
     def delete(self, request, pk):
         category = get_object_or_404(Category, pk=pk)

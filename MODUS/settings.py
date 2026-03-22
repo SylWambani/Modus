@@ -139,17 +139,30 @@ REST_FRAMEWORK = {
     ),
     
 }
-AUTH_USER_MODEL = 'users.CustomUser'
 
+SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('Bearer','JWT',),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1)
+}
+
+AUTH_USER_MODEL = 'users.CustomUser'
 
 DJOSER = {
     'SERIALIZERS': {
         'user_create': 'users.serializers.UserRegistrationSerializer',
         #'current_user': 'users.serializers.UserSerializer',
     }
-}
+} 
 
-SIMPLE_JWT = {
-    'AUTH_HEADER_TYPES': ('Bearer','JWT',),
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1)
-}
+# EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+# DEFAULT_FROM_EMAIL = "noreply@modus.com"
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = "wambaninanjala@gmail.com"
+EMAIL_HOST_PASSWORD = "aeydmzsjvtmauzri"  # not your normal password
+
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

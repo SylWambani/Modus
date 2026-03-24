@@ -13,6 +13,9 @@ class CustomUser(AbstractUser):
     REQUIRED_FIELDS = ['username']
 
 class UserInvite(models.Model):
+    first_name = models.CharField(max_length=100, null=True, blank=True)
+    last_name = models.CharField(max_length=100, null=True, blank=True)
+    employee_number = models.IntegerField(null=True, blank=True)
     email = models.EmailField()
     token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     is_used = models.BooleanField(default=False)

@@ -4,7 +4,7 @@ from .utils import send_invite_email
 
 @admin.register(UserInvite)
 class UserInviteAdmin(admin.ModelAdmin):
-    list_display = ("email", "role", "is_used", "created_at")
+    list_display = ("first_name","last_name", "employee_number","email", "role", "is_used", "created_at")
     actions = ["send_invites"]
 
     def send_invites(self, request, queryset):

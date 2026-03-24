@@ -6,11 +6,11 @@ def send_invite_email(invite):
 
     try:
         send_mail(
-        subject="You're invited to the ERP system",
+        subject="You're invited to the MODUS system",
         message=f"""
         Hi,
 
-        You've been invited to join the ERP system.
+        You've been invited to join the MODUS system.
 
         Click the link below to complete your registration:
         {link}

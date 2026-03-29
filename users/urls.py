@@ -4,6 +4,11 @@ from . import views
 
 router = routers.DefaultRouter()
 router.register('register', views.RegisterViewSet, basename='registration')
-router.register('register-with-invite', views.RegisterWithInviteView.as_view(), basename='register-with-invite')
 
-urlpatterns = router.urls
+urlpatterns = router.urls + [
+    path(
+        'register-with-invite/',
+        views.RegisterWithInviteView.as_view(),
+        name='register-with-invite'
+    ),
+]

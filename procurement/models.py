@@ -2,6 +2,7 @@ import uuid
 #from uuid import uuid4
 from django.db import models, IntegrityError
 from django.db.models import F, Sum
+from django.conf import settings
 
 
 class Supplier(models.Model):
@@ -9,9 +10,18 @@ class Supplier(models.Model):
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=255)
     address = models.TextField(max_length=255)
+    # created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete = models.PROTECT, editable=False)
+    # created_at = models.DateTimeField(auto_now_add=True)
+    # updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
+        # return f"{self.name} (Created by:{self.created_by})"
+
+    # class Meta:
+    #     permissions = [
+    #         ('view_supplier', 'Can view supplier')
+    #     ]
 
 class PurchaseOrder(models.Model):
     STATUS_CHOICES = (

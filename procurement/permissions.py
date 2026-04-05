@@ -9,16 +9,10 @@ class CanViewSupplier(permissions.BasePermission):
             return request.user.has_perm("procurement.add_supplier")
         elif request.method == "DELETE":
             return request.user.has_perm("procurement.delete_supplier")
+        elif request.method == "PATCH":
+            return request.user.has_perm("procurement.change_supplier")
 
         return False
-# class IsProcurementManager(permissions.BasePermission):
-#     def has_permission(self, request, view):
-#         return (
-#             request.user.is_authenticated and
-#             request.user.groups.filter(
-#                 name__in=[ "Procurement Manager"]
-#             ).exists()
-#         )
 
 class IsAdminOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):

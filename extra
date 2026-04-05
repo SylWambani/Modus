@@ -1,0 +1,9 @@
+from django.contrib.auth import get_user_model
+from procurement.models import Supplier
+
+User = get_user_model()
+admin = User.objects.get(email="wambanisylvia2@gmail.com")
+
+
+Supplier.objects.filter(created_by__isnull=True).update(created_by=admin)
+Supplier.objects.filter( updated_by__isnull=True).update(updated_by=admin)

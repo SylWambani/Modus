@@ -11,6 +11,7 @@ mysqlclient = "*"
 inflect = "*"
 rapidfuzz = "*"
 djoser = "*"
+django-simple-history = "*"
 
 [dev-packages]
 

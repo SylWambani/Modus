@@ -3,6 +3,7 @@ import uuid
 from django.db import models, IntegrityError
 from django.db.models import F, Sum
 from django.conf import settings
+from simple_history.models import HistoricalRecords
 
 
 class Supplier(models.Model):
@@ -10,9 +11,22 @@ class Supplier(models.Model):
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=255)
     address = models.TextField(max_length=255)
-    # created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete = models.PROTECT, editable=False)
-    # created_at = models.DateTimeField(auto_now_add=True)
-    # updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete = models.PROTECT, 
+        editable=False,
+        related_name="created_suppliers"
+    )
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        editable=False,
+        related_name="updated_suppliers"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    history = HistoricalRecords(inherit=True)
 
     def __str__(self):
         return self.name

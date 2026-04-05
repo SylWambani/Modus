@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'djoser',
+    'simple_history',
     'debug_toolbar',
     'procurement',
     'inventory',
@@ -47,6 +48,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'simple_history.middleware.HistoryRequestMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -157,7 +159,7 @@ AUTH_USER_MODEL = 'users.CustomUser'
 DJOSER = {
     'SERIALIZERS': {
         'user_create': 'users.serializers.UserRegistrationSerializer',
-        #'current_user': 'users.serializers.UserSerializer',
+        'current_user': 'users.serializers.UserRegistrationSerializer',
     }
 } 
 

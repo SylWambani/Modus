@@ -3,30 +3,29 @@ import uuid
 from django.db import models, IntegrityError
 from django.db.models import F, Sum
 from django.conf import settings
-from simple_history.models import HistoricalRecords
+from audit.models import AuditModel
 
-
-class Supplier(models.Model):
+class Supplier(AuditModel):
     name = models.CharField(max_length=255, blank=False)
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=255)
     address = models.TextField(max_length=255)
-    created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, 
-        on_delete = models.PROTECT, 
-        editable=False,
-        related_name="created_suppliers"
-    )
-    updated_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT,
-        editable=False,
-        related_name="updated_suppliers"
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    # created_by = models.ForeignKey(
+    #     settings.AUTH_USER_MODEL, 
+    #     on_delete = models.PROTECT, 
+    #     editable=False,
+    #     related_name="created_suppliers"
+    # )
+    # updated_by = models.ForeignKey(
+    #     settings.AUTH_USER_MODEL,
+    #     on_delete=models.PROTECT,
+    #     editable=False,
+    #     related_name="updated_suppliers"
+    # )
+    # created_at = models.DateTimeField(auto_now_add=True)
+    # updated_at = models.DateTimeField(auto_now=True)
 
-    history = HistoricalRecords(inherit=True)
+    # history = HistoricalRecords(inherit=True)
 
     def __str__(self):
         return self.name
@@ -37,7 +36,7 @@ class Supplier(models.Model):
     #         ('view_supplier', 'Can view supplier')
     #     ]
 
-class PurchaseOrder(models.Model):
+class PurchaseOrder(AuditModel):
     STATUS_CHOICES = (
         ('PENDING', 'Pending'),
         ('APPROVED', 'Approved'),
@@ -50,8 +49,22 @@ class PurchaseOrder(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
     #accounts_approval
     #manager_approval
-    created_at = models.DateTimeField(auto_now_add=True)
-    #created_by = models.
+    # created_by = models.ForeignKey(
+    #     settings.AUTH_USER_MODEL, 
+    #     on_delete = models.PROTECT, 
+    #     editable=False,
+    #     related_name="created_purchaseorder"
+    # )
+    # updated_by = models.ForeignKey(
+    #     settings.AUTH_USER_MODEL,
+    #     on_delete=models.PROTECT,
+    #     editable=False,
+    #     related_name="updated_purchaseorder"
+    # )
+    # created_at = models.DateTimeField(auto_now_add=True)
+    # updated_at = models.DateTimeField(auto_now=True)
+
+    # history = HistoricalRecords(inherit=True)
 
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -74,7 +87,7 @@ class PurchaseOrder(models.Model):
         return self.items.aggregate(total=Sum(F('quantity') * F('price_per_unit')))['total'] or 0
 
 
-class PurchaseOrderItem(models.Model):
+class PurchaseOrderItem(AuditModel):
     purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name="items")
     #variant = models.ForeignKey(ProductVariant, on_delete=models.PROTECT)
     quantity = models.PositiveIntegerField()

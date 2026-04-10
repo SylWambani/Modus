@@ -1,9 +1,20 @@
 from django.contrib.auth import get_user_model
-from procurement.models import Supplier
+from procurement.models import Supplier, PurchaseOrder, PurchaseOrderItem, PurchaseOrder
 
+models = [Supplier, PurchaseOrder, PurchaseOrderItem]
 User = get_user_model()
 admin = User.objects.get(email="wambanisylvia2@gmail.com")
+
+for model in models:
+    model.objects.filter(created_by__isnull=True).update(created_by=admin)
+    model.objects.filter(updated_by__isnull=True).update(updated_by=admin)
+
+
 
 
 Supplier.objects.filter(created_by__isnull=True).update(created_by=admin)
 Supplier.objects.filter( updated_by__isnull=True).update(updated_by=admin)
+PurchaseOrder.objects.filter(created_by__isnull=True).update(created_by=admin)
+PurchaseOrder.objects.filter( updated_by__isnull=True).update(updated_by=admin)
+PurchaseOrderItem.objects.filter(created_by__isnull=True).update(created_by=admin)
+PurchaseOrderItem.objects.filter( updated_by__isnull=True).update(updated_by=admin)

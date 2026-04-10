@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'djoser',
     'simple_history',
     'debug_toolbar',
+    'audit',
     'procurement',
     'inventory',
     'users',

@@ -18,3 +18,7 @@ PurchaseOrder.objects.filter(created_by__isnull=True).update(created_by=admin)
 PurchaseOrder.objects.filter( updated_by__isnull=True).update(updated_by=admin)
 PurchaseOrderItem.objects.filter(created_by__isnull=True).update(created_by=admin)
 PurchaseOrderItem.objects.filter( updated_by__isnull=True).update(updated_by=admin)
+
+default_item = Item.objects.get(name="Unknown Item")
+
+PurchaseOrderItem.objects.filter(item__isnull=True).update(item=default_item)

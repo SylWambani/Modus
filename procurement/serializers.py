@@ -11,7 +11,7 @@ class SupplierSerializer(serializers.ModelSerializer):
 class PurchaseOrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = PurchaseOrderItem
-        fields = ['id', 'purchase_order', 'quantity', 'price_per_unit', 'total_amount']
+        fields = ['id', 'purchase_order', 'item', 'quantity', 'price_per_unit', 'total_amount']
 
 class ViewPurchaseOrderSerializer(serializers.ModelSerializer):
     supplier = SupplierSerializer()
@@ -24,10 +24,10 @@ class ViewPurchaseOrderSerializer(serializers.ModelSerializer):
     #     return sum([item.quantity * item.price_per_unit for item in cart.items.all()])
     class Meta:
         model=PurchaseOrder
-        fields = ['id', 'order_number', 'supplier', 'items', 'total_price', 'status', 'created_at']
+        fields = ['id', 'order_number', 'supplier', 'items', 'total_price', 'created_at']
 
 class AddPurchaseOrderSerializer(serializers.ModelSerializer):
-    supplier = SupplierSerializer()
+    #supplier = SupplierSerializer()
     class Meta:
         model=PurchaseOrder
-        fields = ['id','order_number', 'supplier', 'status', 'created_at']
+        fields = ['id','order_number', 'supplier', 'created_at']

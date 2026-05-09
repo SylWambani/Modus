@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'simple_history',
     'debug_toolbar',
     'audit',
+    'approvals',
     'procurement',
     'inventory',
     'users',

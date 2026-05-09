@@ -37,16 +37,16 @@ class Supplier(AuditModel):
     #     ]
 
 class PurchaseOrder(AuditModel):
-    STATUS_CHOICES = (
-        ('PENDING', 'Pending'),
-        ('APPROVED', 'Approved'),
-        ('RECEIVED', 'Received'),
-        ('NOT_RECEIVED', 'Not Received'),
-    )
+    # STATUS_CHOICES = (
+    #     ('PENDING', 'Pending'),
+    #     ('APPROVED', 'Approved'),
+    #     ('RECEIVED', 'Received'),
+    #     ('NOT_RECEIVED', 'Not Received'),
+    # )
 
     order_number = models.CharField(max_length=50, unique=True, editable=False)
     supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
+    #status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
     #accounts_approval
     #manager_approval
     # created_by = models.ForeignKey(
@@ -89,7 +89,7 @@ class PurchaseOrder(AuditModel):
 
 class PurchaseOrderItem(AuditModel):
     purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name="items")
-    #variant = models.ForeignKey(ProductVariant, on_delete=models.PROTECT)
+    item = models.CharField(max_length=50, null=False, blank=False)
     quantity = models.PositiveIntegerField()
     price_per_unit = models.DecimalField(max_digits=20, decimal_places=2)
 

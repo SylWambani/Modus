@@ -4,19 +4,19 @@ interface NavBarProps {
   children?: React.ReactNode;
 }
 
-const navbar = ({ children }: NavBarProps) => {
-  return;
-  <Container>
+const NavBarSection = ({ children }: NavBarProps) => {
+  return(
+  <Container padding='0'>
     <HStack
       display="flex"
       justifyContent="space-between"
-      padding="8px"
+      padding="10px"
       width="100%"
       backgroundColor="#1E3A8A"
     >
       {children}
     </HStack>
-  </Container>;
+  </Container>)
 };
 
-export default navbar;
+export default NavBarSection;

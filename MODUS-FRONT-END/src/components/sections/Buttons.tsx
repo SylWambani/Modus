@@ -5,11 +5,10 @@ import {
 
 interface ButtonProps extends ChakraButtonProps {
   children: string;
-  //onclick: () => void;
 }
 
-const Buttons = ({ children }: ButtonProps) => {
-  return <Button>{children}</Button>;
+const Buttons = ({ children, ...props }: ButtonProps) => {
+  return <Button {...props}>{children}</Button>;
 };
 
 export default Buttons;

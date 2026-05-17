@@ -6,6 +6,8 @@ import {
   Text,
   Button,
 } from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
+import Buttons from "./Buttons";
 
 const moduleCards = [
   {
@@ -32,6 +34,11 @@ const moduleCards = [
 ];
 
 const Modules = () => {
+  const navigate = useNavigate();
+
+  const handleLogInClick = () => {
+    navigate("/login");
+  };
   return (
     <Box
       as="section"
@@ -77,14 +84,15 @@ const Modules = () => {
                 >
                   {module.description}
                 </Text>
-                <Button
+                <Buttons
                   size="sm"
                   colorScheme="blue"
                   alignSelf="start"
                   aria-label={`Enter ${module.title} module`}
+                  onClick={handleLogInClick}
                 >
                   Enter Module
-                </Button>
+                </Buttons>
               </Stack>
             </Box>
           ))}

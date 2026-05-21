@@ -1,15 +1,67 @@
 import React, { useState } from "react";
 import { Box, Heading, Input, Button, Stack, Text } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
+import Buttons from "../sections/Buttons"
 
 const LogInPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    // TODO: Add authentication logic
-    console.log("Login attempt:", { email, password });
+  const handleLogIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (!email && !password) {
+      setError("Username and password are required");
+      return;
+    }
+
+    if (!email) {
+      setError("Username is required");
+      return;
+    }
+
+    if (!password) {
+      setError("Password is required");
+      return;
+    }
+
+    setError("");
+    /*Nexttime use axiosInstance tp fetch*/
+    try {
+      setLoading(true);
+      const res = await fetch("http://127.0.0.1:8000/auth/jwt/create/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (res.status === 400 || res.status === 401) {
+          throw new Error("Invalid username or password");
+        }
+
+        if (res.status >= 500) {
+          throw new Error("Server error. Please try again later.");
+        }
+
+        throw new Error("Something went wrong. Please try again.");
+      }
+
+      localStorage.setItem("access", data.access);
+      localStorage.setItem("refresh", data.refresh);
+      localStorage.setItem("loginSuccess", "true");
+      navigate("/dashboard");
+    } catch (error: any) {
+      setError(error.message);
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -59,13 +111,13 @@ const LogInPage = () => {
             />
           </Box>
 
-          <Button colorScheme="blue" onClick={handleLogin}>
+          <Buttons colorScheme="blue" onClick={handleLogIn}>
             Sign In
-          </Button>
+          </Buttons>
 
-          <Button variant="ghost" onClick={() => navigate("/")}>
+          <Buttons variant="ghost" onClick={() => navigate("/")}>
             Back to Home
-          </Button>
+          </Buttons>
         </Stack>
       </Box>
     </Box>

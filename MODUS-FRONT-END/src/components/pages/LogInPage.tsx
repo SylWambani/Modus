@@ -1,7 +1,12 @@
 import React, { useState } from "react";
-import { Box, Heading, Input, Button, Stack, Text } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
-import Buttons from "../sections/Buttons"
+import { Box, Heading, Input, Stack, Text } from "@chakra-ui/react";
+import { useNavigate, useLocation } from "react-router-dom";
+import Buttons from "../sections/Buttons";
+import { decodeJwtPayload } from "../../utils/auth";
+
+interface LoginLocationState {
+  redirectTo?: string;
+}
 
 const LogInPage = () => {
   const [email, setEmail] = useState("");
@@ -9,6 +14,11 @@ const LogInPage = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const selectedModule = (location.state as LoginLocationState)?.module;
+
+  // const locationState = location.state as LoginLocationState | null;
+  // const redirectTo = locationState?.redirectTo ?? "/dashboard";
 
   const handleLogIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,6 +35,11 @@ const LogInPage = () => {
 
     if (!password) {
       setError("Password is required");
+      return;
+    }
+    if (!selectedModule) {
+      setError("No module selected. Please choose a module first.");
+      navigate("/");
       return;
     }
 
@@ -55,7 +70,73 @@ const LogInPage = () => {
       localStorage.setItem("access", data.access);
       localStorage.setItem("refresh", data.refresh);
       localStorage.setItem("loginSuccess", "true");
-      navigate("/dashboard");
+
+      const meRes = await fetch(
+  "http://127.0.0.1:8000/auth/me/",
+  {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${data.access}`,
+      "Content-Type": "application/json",
+    },
+  }
+);
+
+if (!meRes.ok) {
+        throw new Error("Failed to load user profile");
+      }
+
+const meData = await meRes.json();
+
+ localStorage.setItem("userEmail", meData.email);
+      localStorage.setItem(
+        "userModules",
+        JSON.stringify(meData.modules)
+      );
+      localStorage.setItem("currentModule", selectedModule);
+
+
+
+if (
+  meData.modules.includes(selectedModule)
+) {
+  navigate(`/${selectedModule}/dashboard`);
+} else if (!selectedModule) {
+  setError("No module selected.");
+  navigate("/");
+  return;
+}
+else {
+  setError(
+    "You do not have permission to access this module."
+  );
+}
+      // const claims = decodeJwtPayload(data.access);
+      // const roles = Array.isArray(claims?.roles)
+      //   ? claims.roles
+      //   : claims?.role
+      //     ? String(claims.role).split(/[,\s]+/)
+      //     : [];
+
+      // if (roles.length) {
+      //   localStorage.setItem(
+      //     "userRoles",
+      //     JSON.stringify(roles.map((role) => String(role).toLowerCase())),
+      //   );
+      // }
+
+      // if (claims?.email) {
+      //   localStorage.setItem("userEmail", String(claims.email));
+      // }
+
+//       const redirectUser = (modules: string[]) => {
+//   if (modules.length === 1) {
+//     navigate(`/${modules[0]}/dashboard`);
+//     return;
+//   }
+
+//   navigate("/workspace");
+// };
     } catch (error: any) {
       setError(error.message);
       console.error(error);
@@ -85,6 +166,11 @@ const LogInPage = () => {
         <Heading as="h1" size="lg" mb={6} textAlign="center">
           Sign In
         </Heading>
+        {error && (
+          <Text color="red.500" textAlign="center" mb={4}>
+            {error}
+          </Text>
+        )}
 
         <Stack gap={4}>
           <Box>
@@ -111,7 +197,13 @@ const LogInPage = () => {
             />
           </Box>
 
-          <Buttons colorScheme="blue" onClick={handleLogIn}>
+          <Buttons
+            colorScheme="blue"
+            onClick={handleLogIn}
+            loading={loading}
+            loadingText="Signing in..."
+            disabled={loading}
+          >
             Sign In
           </Buttons>
 

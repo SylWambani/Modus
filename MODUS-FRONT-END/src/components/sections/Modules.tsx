@@ -1,11 +1,4 @@
-import {
-  Box,
-  Heading,
-  SimpleGrid,
-  Stack,
-  Text,
-  Button,
-} from "@chakra-ui/react";
+import { Box, Heading, SimpleGrid, Stack, Text } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import Buttons from "./Buttons";
 
@@ -14,30 +7,34 @@ const moduleCards = [
     icon: "📦",
     title: "Procurement",
     description: "Manage suppliers, quotations and purchase orders.",
+    path: "/procurement",
   },
   {
     icon: "📦",
     title: "Inventory",
     description:
       "Track stock levels, product movement and warehouse workflows.",
+    path: "/inventory",
   },
   {
     icon: "👥",
     title: "HR",
     description: "Handle employee records, attendance and role-based access.",
+    path: "/hr",
   },
   {
     icon: "📊",
     title: "Accounting",
     description: "Monitor invoices, expenses and financial performance.",
+    path: "/accounting",
   },
 ];
 
 const Modules = () => {
   const navigate = useNavigate();
 
-  const handleLogInClick = () => {
-    navigate("/login");
+  const handleEnterModule = (modulePath: string) => {
+    navigate(modulePath);
   };
   return (
     <Box
@@ -89,7 +86,7 @@ const Modules = () => {
                   colorScheme="blue"
                   alignSelf="start"
                   aria-label={`Enter ${module.title} module`}
-                  onClick={handleLogInClick}
+                  onClick={() => handleEnterModule(module.path)}
                 >
                   Enter Module
                 </Buttons>

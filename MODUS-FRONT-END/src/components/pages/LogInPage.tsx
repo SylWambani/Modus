@@ -5,7 +5,7 @@ import Buttons from "../sections/Buttons";
 import { decodeJwtPayload } from "../../utils/auth";
 
 interface LoginLocationState {
-  redirectTo?: string;
+  module?: string;
 }
 
 const LogInPage = () => {
@@ -24,12 +24,12 @@ const LogInPage = () => {
     e.preventDefault();
     setError("");
     if (!email && !password) {
-      setError("Username and password are required");
+      setError("Email and password are required");
       return;
     }
 
     if (!email) {
-      setError("Username is required");
+      setError("Email is required");
       return;
     }
 

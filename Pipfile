@@ -12,6 +12,7 @@ inflect = "*"
 rapidfuzz = "*"
 djoser = "*"
 django-simple-history = "*"
+django-cors-headers = "*"
 
 [dev-packages]
 

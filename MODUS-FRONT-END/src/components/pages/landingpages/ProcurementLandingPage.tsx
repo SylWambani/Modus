@@ -33,9 +33,7 @@ const ProcurementLandingPage: React.FC = () => {
             <Stack direction={{ base: "column", sm: "row" }} gap={4}>
               <Buttons
                 onClick={() =>
-                  navigate("/login", {
-                    state: { redirectTo: "/dashboard/procurement" },
-                  })
+                  navigate("/procurement/login")
                 }
                 colorScheme="blue"
               >

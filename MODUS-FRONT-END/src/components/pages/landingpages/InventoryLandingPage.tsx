@@ -34,9 +34,7 @@ const InventoryLandingPage: React.FC = () => {
             <Stack direction={{ base: "column", sm: "row" }} gap={4}>
               <Buttons
                 onClick={() =>
-                  navigate("/login", {
-                    state: { redirectTo: "/dashboard/inventory" },
-                  })
+                  navigate("/inventory/login")
                 }
                 colorScheme="blue"
               >

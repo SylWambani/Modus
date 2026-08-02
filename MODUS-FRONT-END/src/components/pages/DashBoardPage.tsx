@@ -1,7 +1,8 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { Box, Heading, Text, Stack } from "@chakra-ui/react";
+import { Box, Heading, Text, Badge, VStack, HStack } from "@chakra-ui/react";
 import Buttons from "../sections/Buttons";
-import { isAuthenticated, userHasModuleAccess, getUserRoles } from "../../utils/auth";
+import { useAuth } from "../../contexts/AuthContext";
+import ProtectedSection from "../ui/ProtectedSection";
 
 const moduleTitles: Record<string, string> = {
   procurement: "Procurement",
@@ -23,114 +24,181 @@ const moduleDescriptions: Record<string, string> = {
 const DashBoardPage = () => {
   const navigate = useNavigate();
   const { module } = useParams<{ module?: string }>();
-  const title = module ? moduleTitles[module] ?? "Dashboard" : "Dashboard";
-  const authenticated = isAuthenticated();
-  const authorized = module ? userHasModuleAccess(module) : true;
-  const userRoles = getUserRoles();
+  const { user, logout } = useAuth();
+
+  const title = module ? (moduleTitles[module] ?? "Dashboard") : "Dashboard";
+  const authenticated = !!user;
+  const userPermissions = user?.permissions || [];
 
   const handleSignIn = () => {
-    navigate("/login", {
-      state: { redirectTo: module ? `/dashboard/${module}` : "/dashboard" },
-    });
+    navigate(`/${module}/login`);
   };
 
-  if (module && moduleTitles[module] && module === "procurement") {
-    if (!authenticated) {
-      return (
-        <Box p={8} maxW="3xl" mx="auto">
-          <Heading as="h1" size="2xl" mb={4}>
-            Procurement Dashboard
-          </Heading>
-          <Text mb={4} fontSize="lg">
-            You must sign in with a procurement account to view this dashboard.
-          </Text>
-          <Buttons colorScheme="blue" onClick={handleSignIn}>
-            Sign In to Procurement
-          </Buttons>
-        </Box>
-      );
-    }
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
 
-    if (!authorized) {
-      return (
-        <Box p={8} maxW="3xl" mx="auto">
-          <Heading as="h1" size="2xl" mb={4}>
-            Access Denied
-          </Heading>
-          <Text mb={4} fontSize="lg">
-            Your account does not have procurement permissions. If you believe
-            this is an error, sign in with a procurement officer account.
-          </Text>
-          <Stack direction={{ base: "column", sm: "row" }} gap={4}>
-            <Buttons colorScheme="blue" onClick={handleSignIn}>
-              Sign In with Another Account
-            </Buttons>
-            <Buttons variant="ghost" onClick={() => navigate("/")}>
-              Back to Home
-            </Buttons>
-          </Stack>
-          {userRoles.length > 0 && (
-            <Text mt={4} color="gray.500">
-              Current roles: {userRoles.join(", ")}
-            </Text>
-          )}
-        </Box>
-      );
-    }
+  if (!authenticated) {
+    return (
+      <Box p={8} maxW="3xl" mx="auto">
+        <Heading as="h1" size="2xl" mb={4}>
+          {title} Dashboard
+        </Heading>
+        <Text mb={4} fontSize="lg">
+          You must sign in to access this dashboard.
+        </Text>
+        <Buttons colorScheme="blue" onClick={handleSignIn}>
+          Sign In
+        </Buttons>
+      </Box>
+    );
   }
 
   return (
     <Box p={8} maxW="5xl" mx="auto">
-      <Heading as="h1" size="3xl" mb={4}>
-        {title} Dashboard
-      </Heading>
+      <HStack justify="space-between" mb={8}>
+        <VStack align="start" gap={1}>
+          <Heading as="h1" size="3xl">
+            {title} Dashboard
+          </Heading>
+          <Text color="gray.600">
+            Welcome, {user?.first_name || user?.username}
+          </Text>
+        </VStack>
+        <Buttons colorScheme="red" size="sm" onClick={handleLogout}>
+          Logout
+        </Buttons>
+      </HStack>
+
       {module && moduleTitles[module] ? (
         <>
-          <Text fontSize="lg" mb={4}>
+          <Text fontSize="lg" mb={6}>
             {moduleDescriptions[module]}
           </Text>
-          {module === "procurement" ? (
-            <Stack gap={3}>
-              <Text>
-                Procurement officers can create purchase orders, approve vendor
-                quotes, and manage supplier workflows from here.
-              </Text>
-              <Text>Authorized roles: procurement, procurement_officer.</Text>
-            </Stack>
-          ) : module === "inventory" ? (
-            <Stack gap={3}>
-              <Text>
-                Inventory team members can track stock, run inventory counts,
-                and manage warehouse movements.
-              </Text>
-              <Text>Authorized roles: inventory, inventory_manager.</Text>
-            </Stack>
-          ) : module === "hr" ? (
-            <Stack gap={3}>
-              <Text>
-                HR users can manage employees, leaves, and role-based access
-                workflows.
-              </Text>
-              <Text>Authorized roles: hr, hr_manager.</Text>
-            </Stack>
-          ) : module === "accounting" ? (
-            <Stack gap={3}>
-              <Text>
-                Accounting team members can review invoices, expenses, and
-                financial reports.
-              </Text>
-              <Text>Authorized roles: accounting, finance.</Text>
-            </Stack>
-          ) : null}
+
+          {/* User Info Section */}
+          <Box
+            bg="blue.50"
+            p={4}
+            borderRadius="md"
+            mb={8}
+            borderLeft="4px solid"
+            borderColor="blue.400"
+          >
+            <Text fontWeight="bold" mb={2}>
+              Your Permissions in this Module:
+            </Text>
+            {userPermissions.length > 0 ? (
+              <HStack wrap="wrap" gap={2}>
+                {userPermissions.map((perm) => (
+                  <Badge key={perm} colorScheme="blue">
+                    {perm}
+                  </Badge>
+                ))}
+              </HStack>
+            ) : (
+              <Text color="gray.600">No specific permissions assigned.</Text>
+            )}
+          </Box>
+
+          {/* Protected Sections based on module */}
+          {module === "procurement" && (
+            <VStack align="start" gap={6}>
+              <ProtectedSection
+                requiredPermissions={[
+                  "add_purchaseorder",
+                  "view_purchaseorder",
+                ]}
+                requireAny={true}
+              >
+                <Box
+                  p={6}
+                  borderRadius="lg"
+                  border="1px solid"
+                  borderColor="gray.200"
+                >
+                  <Heading as="h3" size="lg" mb={2}>
+                    📋 Purchase Orders
+                  </Heading>
+                  <Text mb={4} color="gray.600">
+                    Create, view, and manage purchase orders.
+                  </Text>
+                  <Buttons colorScheme="green" size="sm">
+                    View Purchase Orders
+                  </Buttons>
+                </Box>
+              </ProtectedSection>
+
+              <ProtectedSection
+                requiredPermissions={["add_supplier", "view_supplier"]}
+                requireAny={true}
+              >
+                <Box
+                  p={6}
+                  borderRadius="lg"
+                  border="1px solid"
+                  borderColor="gray.200"
+                >
+                  <Heading as="h3" size="lg" mb={2}>
+                    🏢 Suppliers
+                  </Heading>
+                  <Text mb={4} color="gray.600">
+                    Manage suppliers and vendor information.
+                  </Text>
+                  <Buttons colorScheme="green" size="sm">
+                    View Suppliers
+                  </Buttons>
+                </Box>
+              </ProtectedSection>
+
+              <ProtectedSection requiredPermissions={["view_approval"]}>
+                <Box
+                  p={6}
+                  borderRadius="lg"
+                  border="1px solid"
+                  borderColor="gray.200"
+                >
+                  <Heading as="h3" size="lg" mb={2}>
+                    ✅ Approvals
+                  </Heading>
+                  <Text mb={4} color="gray.600">
+                    Review and approve pending procurement requests.
+                  </Text>
+                  <Buttons colorScheme="green" size="sm">
+                    View Pending Approvals
+                  </Buttons>
+                </Box>
+              </ProtectedSection>
+            </VStack>
+          )}
+
+          {module === "inventory" && (
+            <VStack align="start" gap={6}>
+              <ProtectedSection requiredPermissions={["view_product"]}>
+                <Box
+                  p={6}
+                  borderRadius="lg"
+                  border="1px solid"
+                  borderColor="gray.200"
+                >
+                  <Heading as="h3" size="lg" mb={2}>
+                    📦 Products
+                  </Heading>
+                  <Text mb={4} color="gray.600">
+                    View and manage product inventory.
+                  </Text>
+                  <Buttons colorScheme="green" size="sm">
+                    View Products
+                  </Buttons>
+                </Box>
+              </ProtectedSection>
+            </VStack>
+          )}
         </>
       ) : (
         <Text fontSize="lg">
           Welcome to your main dashboard. Select a module to continue.
-        </Text>
-      )}
-      {authenticated && userRoles.length > 0 && (
-        <Text mt={6} color="gray.600">
-          Signed in roles: {userRoles.join(", ")}
         </Text>
       )}
     </Box>

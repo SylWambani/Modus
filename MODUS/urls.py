@@ -27,6 +27,7 @@ urlpatterns = [
     path('inventory/', include('inventory.urls')),
     path('procurement/', include('procurement.urls')),
     path('register/', include('users.urls')),
+    path('auth/', include('auth.urls')),
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
     path('__debug__/', include(debug_toolbar.urls)),

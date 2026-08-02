@@ -2,7 +2,7 @@ from rest_framework.viewsets import ViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from procurement.permissions import CustomDjangoModelPermissions, IsAdminOrReadOnly, ViewCustomerHistoryPermission
+from .permissions import CustomDjangoModelPermissions, IsAdminOrReadOnly, ViewCustomerHistoryPermission
 
 
 class MeView(ViewSet):

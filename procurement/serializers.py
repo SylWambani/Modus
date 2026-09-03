@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import PurchaseOrder, PurchaseOrderItem, Supplier
+from django.db import transaction
+from .models import PurchaseOrder, PurchaseOrderItem, Requisition, RequisitionItem, Supplier
 
 class SupplierSerializer(serializers.ModelSerializer):
     class Meta:
@@ -31,3 +32,38 @@ class AddPurchaseOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model=PurchaseOrder
         fields = ['id','order_number', 'supplier', 'created_at']
+
+class RequisitionItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=RequisitionItem
+        fields=['id', 'description', 'quantity', 'estimated_unit_cost', "total_cost"]
+
+class AddRequisitionSerializer(serializers.ModelSerializer):
+    items=RequisitionItemSerializer(many=True)
+    class Meta:
+        model=Requisition
+        fields=['id', 'department', 'justification','items']
+        read_only_fields = ['id']
+
+    def create(self, validated_data):
+        items_data = validated_data.pop('items')
+        with transaction.atomic():
+            requisition = Requisition.objects.create(**validated_data)
+            for item_data in items_data:
+                RequisitionItem.objects.create(requisition=requisition, **item_data)
+        return requisition
+
+class ViewRequisitionSerializer(serializers.ModelSerializer):
+    requested_by = serializers.StringRelatedField(source="created_by")
+    approved_by = serializers.StringRelatedField()
+    items = RequisitionItemSerializer(many=True, read_only=True)
+    grand_total_cost = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Requisition
+        fields = [
+            "id", "department", "justification", "status",
+            "requested_by", "approved_by", "approved_at",
+            "rejection_reason", "created_at", "updated_at", "items", "grand_total_cost"
+        ]
+        read_only_fields = fields     

@@ -26,9 +26,12 @@ class UserInviteAdmin(admin.ModelAdmin):
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
+    ordering = ["email"]
+    list_display = ["email", "username", "first_name", "last_name", "is_staff"]
+
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('first_name', 'last_name','username', 'email'),
+            'fields': ('first_name', 'last_name', 'username', 'email', 'password1', 'password2'),
         }),
     )

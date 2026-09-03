@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     'procurement',
     'inventory',
     'users',
+    'humanResource',
+    'organization',
 ]
 
 MIDDLEWARE = [

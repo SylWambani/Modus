@@ -22,3 +22,20 @@ class IsAdminOrReadOnly(permissions.BasePermission):
 class ViewCustomerHistoryPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user.has_perm('store.view_history')
+
+class RequisitionApprovePermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.has_perm("procurement.approve_requisition")
+
+
+class RequisitionConvertPermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.has_perm("procurement.convert_requisition")
+
+class IsAuditorReadOnly(permissions.BasePermission):
+    """Grants read-only access to any model, regardless of module membership,
+    to users in the 'auditor' group — independent of procurement/inventory/HR perms."""
+    def has_permission(self, request, view):
+        if request.method not in permissions.SAFE_METHODS:
+            return False
+        return request.user.groups.filter(name="auditor").exists()

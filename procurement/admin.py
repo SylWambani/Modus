@@ -11,5 +11,5 @@ class RequisitionItemInline(admin.TabularInline):
 class RequisitionAdmin(admin.ModelAdmin):
     list_display = ["id", "department", "status", "requested_by", "created_at"]
     list_filter = ["status", "department"]
-    readonly_fields = ["status", "approved_by", "approved_at", "requested_by", "created_by", "updated_by"]
+    readonly_fields = ["status", "requested_by", "created_by", "updated_by"]
     inlines = [RequisitionItemInline]

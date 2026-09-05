@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.db import transaction
 from .models import PurchaseOrder, PurchaseOrderItem, Requisition, RequisitionItem, Supplier
+from approvals.serializers import ApprovalSerializer
 
 class SupplierSerializer(serializers.ModelSerializer):
     class Meta:
@@ -55,15 +56,15 @@ class AddRequisitionSerializer(serializers.ModelSerializer):
 
 class ViewRequisitionSerializer(serializers.ModelSerializer):
     requested_by = serializers.StringRelatedField(source="created_by")
-    approved_by = serializers.StringRelatedField()
     items = RequisitionItemSerializer(many=True, read_only=True)
     grand_total_cost = serializers.ReadOnlyField()
+    approval_trail = ApprovalSerializer(source="approvals", many=True, read_only=True)
+
 
     class Meta:
         model = Requisition
         fields = [
             "id", "department", "justification", "status",
-            "requested_by", "approved_by", "approved_at",
-            "rejection_reason", "created_at", "updated_at", "items", "grand_total_cost"
+            "requested_by", "rejection_reason", "created_at", "updated_at", "items", "grand_total_cost", "approval_trail"
         ]
         read_only_fields = fields     

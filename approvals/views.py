@@ -13,18 +13,20 @@ class ApprovalViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         return [permissions.IsAuthenticated()]
+    
+    def create(self, request, *args, **kwargs):
+        return Response(
+            {"detail": "Approvals cannot be created directly."},
+            status=405,
+        )
 
     def get_queryset(self):
         user = self.request.user
-        # Group-based stages: filterable directly in the DB.
         group_based_ids = Approval.objects.filter(
             status="pending",
             stage__approver_group__in=user.groups.all(),
         ).values_list("id", flat=True)
 
-        # Dynamic (department-head) stages: must be resolved per-object, so
-        # evaluate in Python. Fine at hospital-department scale; revisit if
-        # this table grows into the thousands of pending rows.
         dynamic_candidates = Approval.objects.filter(
             status="pending",
             stage__approver_is_department_head=True,

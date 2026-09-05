@@ -124,14 +124,6 @@ class Requisition(AuditModel):
     department = models.ForeignKey(Department, on_delete=models.PROTECT, related_name="requisitions")
     justification = models.TextField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
-
-    approved_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        null=True, blank=True,
-        on_delete=models.SET_NULL,
-        related_name="approved_requisitions",
-    )
-    approved_at = models.DateTimeField(null=True, blank=True)
     rejection_reason = models.TextField(null=True, blank=True)
     approvals = GenericRelation(Approval)
 
